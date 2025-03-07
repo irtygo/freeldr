@@ -28,7 +28,7 @@ jobs:
         
         echo 'Installing dependencies...'
         pacman -S --noconfirm ninja lld mingw-w64-gcc cmake git bison \
-        || { echo 'Failed to install dependencies'; exit 1; }
+        flex || { echo 'Failed to install dependencies'; exit 1; }
         
         echo 'Configuring the build...'
         ROS_ARCH=i386 ./configure.sh || { echo 'Configure failed'; exit 1; }
