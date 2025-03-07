@@ -17,11 +17,11 @@ jobs:
       run: sudo apt install gcc ninja-build flex bison cmake llvm gzip
     - name: Compile gcc
       run : |
-         curl https://ftp.gnu.org/gnu/gcc/gcc-9.3.0/gcc-9.3.0.tar.gz | gzip -d | tar -xv
+         curl https://ftp.gnu.org/gnu/gcc/gcc-9.3.0/gcc-9.3.0.tar.gz | gzip -d | tar -xv > /dev/null
          cd gcc-9.3.0
          ./configure --target=i686-w64-mingw32-gcc --prefix=/tmp --libexecdir=/usr/lib --target=i686-w64-mingw32 \
           --enable-languages=ada,c,c++,fortran,lto,objc,obj-c++ \
-         --disabled-shared --enable-static --enable-threads=posix --enable-fully-dynamic-string \
+         --disable-shared --enable-static --enable-threads=posix --enable-fully-dynamic-string \
          --enable-libstdcxx-time=yes --enable-libstdcxx-filesystem-ts=yes --with-system-zlib --enable-cloog-backend=isl \
          --enable-lto --enable-libgomp --disable-multilib --enable-checking=release --disable-sjlj-exceptions --with-dwarf2
           make -j$(nproc)
