@@ -15,5 +15,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Get deps
       run: sudo apt install gcc ninja-build flex bison cmake llvm
+    - name: Configure
+      run: chmod +x ./configure.sh ; ./configure.sh
     - name: make
       run: ninja freeldr
