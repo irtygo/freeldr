@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get deps
-      run: sudo apt install gcc ninja-build flex bison cmake llvm gzip libmpc3 libmpfr6
+      run: sudo apt-get install gcc ninja-build flex bison cmake llvm gzip libmpc3 libmpfr6 libgmp-dev libmpfr-dev libmpc-dev
     - name: Compile gcc
       run : |
          curl https://ftp.gnu.org/gnu/gcc/gcc-9.3.0/gcc-9.3.0.tar.gz | gzip -d | tar -xv > /dev/null
