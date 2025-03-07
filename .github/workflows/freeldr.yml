@@ -16,7 +16,6 @@ jobs:
     - name: Get deps
       run: |
         sudo apt install gcc ninja-build flex bison cmake llvm
-        - name: Get RosBE build specifics
     - name: Get ROSBE init stuff
       id: get_rosbe_spec
       run: |
