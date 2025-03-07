@@ -15,27 +15,21 @@ jobs:
     - uses: actions/checkout@v4
     - name: Get deps
       run: |
-        sudo apt-get install gcc ninja-build flex bison cmake llvm gzip libmpc3 \
-        libmpfr6 libgmp-dev libmpfr-dev libmpc-dev libisl-dev texinfo gnat
-    - name: Compile gcc
-      run : |
-         curl https://ftp.gnu.org/gnu/gcc/gcc-9.3.0/gcc-9.3.0.tar.gz | gzip -d | tar -xv > /dev/null
-         cd gcc-9.3.0
-         ./configure --target=i686-w64-mingw32-gcc --prefix=/tmp --libexecdir=/usr/lib --target=i686-w64-mingw32 \
-          --enable-languages=ada,c,c++,fortran,lto,objc,obj-c++ \
-         --disable-shared --enable-static --enable-threads=posix --enable-fully-dynamic-string \
-         --enable-libstdcxx-time=yes --enable-libstdcxx-filesystem-ts=yes --with-system-zlib --enable-cloog-backend=isl \
-         --enable-lto --enable-libgomp --disable-multilib --enable-checking=release --disable-sjlj-exceptions --with-dwarf2
-          make -j$(nproc)
-         cd ..
-    - name: Configure
-      run: ROS_ARCH=i386 ./configure.sh
+        sudo apt-get install gcc ninja-build flex bison cmake llvm gzip libmpc3 docker
     - name: Build
       run: |
-        cd output-MinGW-i386
-        ninja freeldr
-        ninja boot/freeldr/bootsect/dosmbr
-        cd ..
+          docker pull archlinux:latest  # Pull the latest Arch Linux image
+          docker run --rm -v $PWD:/workspace -w /workspace archlinux:latest /bin/bash -c "
+          # Update Arch Linux repositories
+          pacman -Syu --noconfirm;
+          # Install MinGW-w64 and required dependencies
+          pacman -S --noconfirm mingw-w64-i686-gcc mingw-w64-i686-g++;
+          ROS_ARCH=i386 ./configure.sh
+          cd output-MinGW-i386
+          ninja freeldr
+          ninja boot/freeldr/bootsect/dosmbr
+          cd ..
+          "
     - name: Upload freeldr.sys
       uses: actions/upload-artifact@v4.6.1
       with:
