@@ -20,14 +20,15 @@ jobs:
       run: |
           docker pull archlinux:latest  # Pull the latest Arch Linux image
           docker run --rm -v $PWD:/workspace -w /workspace archlinux:latest /bin/bash -c "
+          set -e pipefail
           # Update Arch Linux repositories
-          pacman -Syu --noconfirm;
+          pacman -Syu --noconfirm; || exit $?
           # Install MinGW-w64 and required dependencies
-          pacman -S --noconfirm ninja lld mingw-w64-gcc;
-          ROS_ARCH=i386 ./configure.sh
+          pacman -S --noconfirm ninja lld mingw-w64-gcc cmake || exit $?
+          ROS_ARCH=i386 ./configure.sh || exit $?
           cd output-MinGW-i386
-          ninja freeldr
-          ninja boot/freeldr/bootsect/dosmbr
+          ninja freeldr || exit $?
+          ninja boot/freeldr/bootsect/dosmbr || exit $?
           cd ..
           "
     - name: Upload freeldr.sys
