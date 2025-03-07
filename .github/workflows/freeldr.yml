@@ -23,7 +23,7 @@ jobs:
           # Update Arch Linux repositories
           pacman -Syu --noconfirm;
           # Install MinGW-w64 and required dependencies
-          pacman -S --noconfirm mingw-w64-i686-gcc mingw-w64-i686-g++;
+          pacman -S --noconfirm ninja lld mingw-w64-gcc;
           ROS_ARCH=i386 ./configure.sh
           cd output-MinGW-i386
           ninja freeldr
