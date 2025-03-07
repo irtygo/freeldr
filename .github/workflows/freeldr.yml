@@ -13,27 +13,40 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Get deps
+    - name: Get dependencies
       run: |
-        sudo apt-get install gcc ninja-build flex bison cmake llvm gzip libmpc3
-    - name: Build
+        sudo apt-get update
+        sudo apt-get install -y gcc ninja-build flex bison cmake llvm gzip libmpc3
+
+    - name: Build in Arch Linux Docker
       run: |
-          docker pull archlinux:latest  # Pull the latest Arch Linux image
-          docker run --rm -v $PWD:/workspace -w /workspace archlinux:latest /bin/bash -c "
-          set -e pipefail
-          # Update Arch Linux repositories
-          pacman -Syu --noconfirm; || exit $?
-          # Install MinGW-w64 and required dependencies
-          pacman -S --noconfirm ninja lld mingw-w64-gcc cmake || exit $?
-          ROS_ARCH=i386 ./configure.sh || exit $?
-          cd output-MinGW-i386
-          ninja freeldr || exit $?
-          ninja boot/freeldr/bootsect/dosmbr || exit $?
-          cd ..
-          "
-    - name: Upload freeldr.sys
+        docker pull archlinux:latest  # Pull the latest Arch Linux image
+        docker run --rm -v $PWD:/workspace -w /workspace archlinux:latest /bin/bash -c "
+        set -euo pipefail
+        echo 'Updating Arch Linux repositories...'
+        pacman -Syu --noconfirm || { echo 'Failed to update Arch repositories'; exit 1; }
+        
+        echo 'Installing dependencies...'
+        pacman -S --noconfirm ninja lld mingw-w64-gcc cmake || { echo 'Failed to install dependencies'; exit 1; }
+        
+        echo 'Configuring the build...'
+        ROS_ARCH=i386 ./configure.sh || { echo 'Configure failed'; exit 1; }
+        
+        echo 'Building freeldr...'
+        cd output-MinGW-i386
+        ninja freeldr || { echo 'Freeldr build failed'; exit 1; }
+        
+        echo 'Building dosmbr...'
+        ninja boot/freeldr/bootsect/dosmbr || { echo 'dosmbr build failed'; exit 1; }
+        
+        cd ..
+        echo 'Build complete'
+        "
+
+    - name: Upload freeldr.sys and dosmbr
       uses: actions/upload-artifact@v4.6.1
       with:
+        name: freeldr-artifacts
         path: |
           output-MinGW-i386/boot/freeldr/freeldr/freeldr.sys
           output-MinGW-i386/boot/freeldr/bootsect/dosmbr.bin
