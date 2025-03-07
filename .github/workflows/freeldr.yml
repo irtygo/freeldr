@@ -14,27 +14,18 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get deps
-      run: |
-        sudo apt install gcc ninja-build flex bison cmake llvm
-    - name: Get ROSBE init stuff
-      id: get_rosbe_spec
-      run: |
-        gcc -march=native -Q --help=target | grep "\-march= " | awk '{print $NF}'
-        echo march-sha=$(gcc -march=native -Q --help=target | sha1sum | awk '{print $1}') >> $GITHUB_OUTPUT
-        echo git-sha=$(git ls-remote https://github.com/zefklop/RosBE.git | grep unix_amd64 | awk '{print $1}') >> $GITHUB_OUTPUT
-        wget https://gist.githubusercontent.com/zefklop/b2d6a0b470c70183e93d5285a03f5899/raw/build_rosbe_ci.sh
-    - name: Get RosBE
-      id: get_rosbe
-      uses: actions/cache@v4
-      with:
-        path: RosBE-CI
-        key: RosBE-CI-${{runner.os}}-${{steps.get_rosbe_spec.outputs.march-sha}}-${{steps.get_rosbe_spec.outputs.git-sha}}-${{hashfiles('./build_rosbe_ci.sh')}}
-    - name: Compile RosBE
-      if: ${{ steps.get_rosbe.outputs.cache-hit != 'true' }}
-      run: |
-        chmod +x build_rosbe_ci.sh
-        ./build_rosbe_ci.sh ${{github.workspace}}/RosBE-CI
+      run: sudo apt install gcc ninja-build flex bison cmake llvm
     - name: Configure
-      run: chmod +x ./configure.sh ; ./configure.sh
-    - name: make
-      run: ninja freeldr
+      run: ROS_ARCH=i386 ./configure.sh
+    - name: Build
+      run: |
+        cd output-MinGW-i386
+        ninja freeldr
+        ninja boot/freeldr/bootsect/dosmbr
+        cd ..
+    - name: Upload freeldr.sys
+      uses: actions/upload-artifact@v4.6.1
+      with:
+        path: |
+          output-MinGW-i386/boot/freeldr/freeldr/freeldr.sys
+          output-MinGW-i386/boot/freeldr/bootsect/dosmbr.bin
