@@ -27,7 +27,8 @@ jobs:
         pacman -Syu --noconfirm || { echo 'Failed to update Arch repositories'; exit 1; }
         
         echo 'Installing dependencies...'
-        pacman -S --noconfirm ninja lld mingw-w64-gcc cmake || { echo 'Failed to install dependencies'; exit 1; }
+        pacman -S --noconfirm ninja lld mingw-w64-gcc cmake git bison \
+        || { echo 'Failed to install dependencies'; exit 1; }
         
         echo 'Configuring the build...'
         ROS_ARCH=i386 ./configure.sh || { echo 'Configure failed'; exit 1; }
@@ -39,7 +40,6 @@ jobs:
         echo 'Building dosmbr...'
         ninja boot/freeldr/bootsect/dosmbr || { echo 'dosmbr build failed'; exit 1; }
         
-        cd ..
         echo 'Build complete'
         "
 
