@@ -13,11 +13,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Get dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y gcc ninja-build flex bison cmake llvm gzip libmpc3
-
     - name: Build in Arch Linux Docker
       run: |
         docker pull archlinux:latest  # Pull the latest Arch Linux image
@@ -27,8 +22,8 @@ jobs:
         pacman -Syu --noconfirm || { echo 'Failed to update Arch repositories'; exit 1; }
         
         echo 'Installing dependencies...'
-        pacman -S --noconfirm ninja lld mingw-w64-gcc cmake git bison \
-        flex || { echo 'Failed to install dependencies'; exit 1; }
+        pacman -S --noconfirm ninja lld mingw-w64-gcc cmake gcc git \
+        bison flex || { echo 'Failed to install dependencies'; exit 1; }
         
         echo 'Configuring the build...'
         ROS_ARCH=i386 ./configure.sh || { echo 'Configure failed'; exit 1; }
