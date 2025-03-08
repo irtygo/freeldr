@@ -43,5 +43,12 @@ jobs:
       with:
         name: freeldr-artifacts
         path: |
-          output-MinGW-i386/boot/freeldr/freeldr/freeldr.sys
-          output-MinGW-i386/boot/freeldr/bootsect/dosmbr.bin
+          output-MinGW-i386/freeldr.sys
+
+    - name: Upload freeldr.sys to GitHub Releases
+      uses: softprops/action-gh-release@v1
+      with: 
+        files: "output-MinGW-i386/freeldr.sys"  # This grabs freeldr.sys
+        tag_name: latest
+        token: ${{ secrets.GITHUB_TOKEN }}
+        overwrite: true
